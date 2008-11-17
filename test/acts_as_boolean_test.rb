@@ -24,21 +24,6 @@ class ActsAsBooleanTest < Test::Unit::TestCase
     end
   end
 
-  # def test_performance_of__is_true_
-    # puts "\nis_true performance: "
-    # puts Benchmark.measure { 
-      # 5000.times do |i|
-        # test__is_true__should_return_false_for_false_values
-        # test__is_true__should_return_true_for_true_values
-
-        # # 10.times do 
-          # # t = @person.is_true?(true)
-          # # t = @person.is_true?(false)
-        # # end
-      # end
-    # }
-  # end
-
   def test__false_is_also__should_add_additional_false_consants_to__is_true
     assert @person.is_true?(66)
     assert @person.is_true?(1, ['nine', 'nada', 9999])

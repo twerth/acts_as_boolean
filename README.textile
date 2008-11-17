@@ -1,4 +1,4 @@
-h1. Acts As Boolean
+h1. acts_as_boolean
 
 Treats a column as a boolean, whether it's a tinyint, integer, float, 
 string, etc.  No matter how the true and false are stored in the database.
