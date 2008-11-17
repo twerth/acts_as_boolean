@@ -1,7 +1,8 @@
 h1. acts_as_boolean
 
-Treats a column as a boolean, whether it's a tinyint, integer, float, 
-string, etc.  No matter how the true and false are stored in the database.
+A **Ruby on Rails** plugin that treats a column as a boolean, whether it's
+a tinyint, integer, float, string, etc.  No matter how the true and false are
+stored in the database.
 
 This is useful when you don't have control over how booleans are 
 stored by different applications.  For example: Microsoft Access stores 
