@@ -1,7 +1,7 @@
 h1. acts_as_boolean
 
 A **Ruby on Rails** plugin that treats a column as a boolean, whether it's
-a tinyint, integer, float, string, etc.  No matter how the true and false are
+a tinyint, integer, float, string, etc.  No matter how true and false are
 stored in the database.
 
 This is useful when you don't have control over how booleans are 
@@ -9,18 +9,22 @@ stored by different applications.  For example: Microsoft Access stores
 booleans as 0 and -1.  Normally -1 in a MySQL database, would be
 converted, by Rails/ActiveRecord, into a false, rather than true as it should be.
 
-You can use either *foo* or *foo?* methods and they return the same result.
+You can use either *foo* (assuming your column is foo) or *foo?* methods and 
+they return the same result.
 
 The following are false (lower or any case), all else are true: 
+
 <b>false, nil, 0, 0.0, '', '0', '0.0', 'f', 'false', 'n', 'no', 'negative', 
-[], {}</b><br />
+[], {}</b>
+
 You can add to these, for individual columns, using the *false_is_also*
-parameter.  Note: if you use the *set_false_as* parameter, it will 
-automatically be added to the list of falses for this column.
+parameter.<br />
+__Note: if you use the *set_false_as* parameter, it will automatically be added 
+to the list of falses for this column.__
 
 You can specify a specific way a boolean should be stored when 
-assigned with *set_false_as* and *set_true_as*.  This will not change how
-the value is evaluated on read.  In other words, if you save a false as a
+assigned with *set_false_as* and *set_true_as*.  This, however, will not change 
+how the value is evaluated on read.  In other words, if you save a false as
 'nope', a value of 0 or 'f' in the database will still be read as a false.
 It only affects how it is stored.
 
@@ -38,10 +42,20 @@ h3. Parameters
 
 h2. Examples
 
+The most simple example is when you want column *foo* to return true 
+and false correctly for both *foo* and *foo?* methods.  To do that, 
+simply add the following to your model:
+
+<pre><code>
+  acts_as_boolean :foo
+</code></pre>
+
+Some other examples:
+
 <pre><code>
 class Person < ActiveRecord::Base
   acts_as_boolean :alive, :employee
-  acts_as_boolean :vendor, client, :set_true_as => -1
+  acts_as_boolean :vendor, :client, :set_true_as => -1
   acts_as_boolean :foo, :false_is_also => ['nine', 'nada', 9999]
   acts_as_boolean :bar, :set_false_as => 'no', :set_true_as => 'yes', :false_is_also => 'nyet'
 
