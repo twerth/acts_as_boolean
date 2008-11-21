@@ -25,9 +25,16 @@ to the list of falses for this column.__
 You can specify a specific way a boolean should be stored when 
 assigned with *set_false_as* and *set_true_as*.  This, however, will not change 
 how the value is evaluated on read.  In other words, if you save a false as
-'nope', a value of 0 or 'f' in the database will still be read as a false.
+'nope', a value of '0' or 'f' in the database will still be read as a false.
 It only affects how it is stored.
 
+The values set with set_true_as and set_false_as have to be appropriate 
+for the field type. You, obviously, can't store 'foo' in an integer field.
+Also note that boolean type fields can't have set_false_as or 
+set_true_as set, because booleans are stored differently in different 
+databases (for example: 't' and 'f' in sqlite and 0 and 1 in others).
+However, acts_as_boolean is still useful for booleans, to correctly
+convert something like a -1 to true. 
 
 h3. Parameters
 

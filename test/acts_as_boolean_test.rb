@@ -39,55 +39,56 @@ class ActsAsBooleanTest < Test::Unit::TestCase
     assert !@person.is_true?('f', ['nine', 'nada', 9999])
   end
 
-  def test__false_is_also__should_add_additional_false_consants
-    @person.integer2_boolean = false 
-    assert !@person.integer2_boolean
+  def test_all_should_return_false_by_default_as_nil_is_false
+    assert !@person.boolean_boolean 
+    assert !@person.integer_boolean 
+    assert !@person.string_boolean 
+    assert !@person.float_boolean 
   end
 
   def test_both_read_methods_should_return_the_same_value
-    @person.boolean_boolean = true
-    assert @person.boolean_boolean?
-    assert @person.boolean_boolean
+    @person.string_boolean = true
+    assert @person.string_boolean?
+    assert @person.string_boolean
     
-    @person.boolean_boolean = 0
-    assert !@person.boolean_boolean?
-    assert !@person.boolean_boolean
+    @person.integer_boolean = 0
+    assert !@person.integer_boolean?
+    assert !@person.integer_boolean
 
-    @person.boolean_boolean = -1
-    assert @person.boolean_boolean?
-    assert @person.boolean_boolean
+    person = Person.create :integer_boolean => -1
+    assert person.integer_boolean?
+    assert person.integer_boolean
+  end
+
+  def test__set_false_as__should_add_additional_false_consants
+    person = Person.create :integer2_boolean => 99
+    assert !person.integer2_boolean
+
+    person = Person.new
+    person.integer3_boolean = 99 
+    assert person.integer3_boolean
+    person.integer3_boolean = 66
+    assert !person.integer3_boolean
   end
   
-  def test_all_should_return_false_as_nil_is_false
-    assert !@person.boolean_boolean 
-    assert !@person.boolean2_boolean 
-    assert !@person.boolean3_boolean 
-    assert !@person.boolean4_boolean 
-    assert !@person.integer_boolean 
-    assert !@person.string_boolean 
-  end
-
-  def test_value_should_be_stored_as_set_for_non_booleans
-    # If set_true_as or set_false_as aren't set
+  def test_value_should_be_stored_as_set_for_non_booleans_if_true_isnt_set
     person = Person.new
     person.integer_boolean = 66
     assert person.integer_boolean?
     assert_equal 66, person.integer_boolean_before_type_cast
 
     person.save
-    assert_equal 66, person.integer_boolean_before_type_cast
+    person.reload
+    assert_equal "66", person.integer_boolean_before_type_cast
+    assert person.integer_boolean
   end
   
   def test_single__false_is_also__should_return_false
-    @person.boolean4_boolean = 99
-    assert !@person.boolean4_boolean
+    @person.float_boolean = 99
+    assert !@person.float_boolean
 
-    # These shouldn't
-    @person.boolean_boolean = 99
-    assert @person.boolean_boolean
-    
-    @person.boolean4_boolean = 98
-    assert @person.boolean4_boolean
+    @person.float_boolean = 9999 # This shouldn't
+    assert @person.float_boolean
   end
 
   def test_array_for__false_is_also__should_return_false
@@ -107,24 +108,38 @@ class ActsAsBooleanTest < Test::Unit::TestCase
     assert !@person.integer_boolean?
   end
 
-  def test__set_true_as__should_change_how_a_true_value_is_stored_in_db
+  def test__set_true_as__should_change_how_a_true_value_is_stored_in_string_field_in_db
     person = Person.new
-    person.boolean3_boolean = true
     person.string_boolean = true
     person.save
-
-    assert_equal -1, person.boolean3_boolean_before_type_cast
+    person.reload
     assert_equal 'yup', person.string_boolean_before_type_cast
   end
 
-  def test__set_false_as__should_change_how_a_false_value_is_stored_in_db
+  def test__set_true_as__should_change_how_a_true_value_is_stored_in_integer_field_in_db
+    person = Person.new
+    person.integer3_boolean = true
+    person.save
+    person.reload
+    assert_equal '-1', person.integer3_boolean_before_type_cast
+  end
+
+  def test__set_false_as__should_change_how_a_false_value_is_stored_in_string_field_in_db 
     person = Person.new
     person.string_boolean = false
-    person.integer_boolean = false
     person.save
-
+    person.reload
     assert_equal 'nope', person.string_boolean_before_type_cast
-    assert_equal 0, person.integer_boolean_before_type_cast
   end
+
+  def test__set_false_as__should_change_how_a_false_value_is_stored_in_integer_field_in_db
+    person = Person.new
+    person.integer3_boolean = false
+    person.save
+    person.reload
+    assert_equal '66', person.integer3_boolean_before_type_cast # Because it's sqlite
+  end
+
+  # !! Need a test to make sure foo_will_change is applied for Rails 2.1 and above, and below still works
 
 end

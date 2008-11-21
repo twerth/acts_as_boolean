@@ -1,3 +1,5 @@
+require 'active_record/version'
+
 module ActsAsBoolean
   module ClassMethods
 
@@ -20,16 +22,24 @@ module ActsAsBoolean
     # automatically be added to the list of falses for this column.
     #
     # You can specify a specific way a boolean should be stored when 
-    # assigned with set_false_as and set_true_as.  This will not change how
-    # the value is evaluated on read.  In other words, if you save a false as a
-    # 'nope', a value of 0 or 'f' in the database will still be read as a false.
-    # It only affects how it is stored.
+    # assigned with set_false_as and set_true_as parameters.  This will not 
+    # change how the value is evaluated on read.  In other words, if you save 
+    # a false as a 'nope', a value of '0' or 'f' in the database will still be 
+    # read as a false. It only affects how it is stored.
+    #
+    # The values set with set_true_as and set_false_as have to be appropriate 
+    # for the field type. You, obviously, can't store 'foo' in an integer field.
+    # Also note that boolean type fields can't have set_false_as or 
+    # set_true_as set, because booleans are stored differently in different 
+    # databases (for example: 't' and 'f' in sqlite and 0 and 1 in others).  
+    # However, acts_as_boolean is still useful for booleans, to correctly
+    # convert something like a -1 to true.
     #
     # Parameters:
     #
     #   * set_false_as  - What false value to store in the column on assignment.
     #                     By default any value will be stored, and converted to
-    #                     true or false when you read the value.
+    #                     true or false when you read the value.      
     #   * set_true_as   - What true value to store in the column on assignment.
     #                     By default any value will be stored, and converted to
     #                     true or false when you read the value.
@@ -66,26 +76,35 @@ module ActsAsBoolean
       end
 
 
-      if set_false_as or set_true_as # Create setters
-        set_false = set_false_as ? set_false_as.inspect : 'new_value'
-        set_true  = set_true_as  ? set_true_as.inspect  : 'new_value'
+      # Create setters
+      set_false = set_false_as ? set_false_as.inspect : 'new_value'
+      set_true  = set_true_as  ? set_true_as.inspect  : 'new_value'
 
-        args.each do |arg|
-          kode = %Q(
-            def #{arg}=(new_value)
-              if is_true?( new_value #{end_true_call})
-                self[:#{arg}] = #{set_true}
-              else
-                self[:#{arg}] = #{set_false}
-              end
-            end
-          )
-          class_eval kode
+      args.each do |arg|
+
+        # For Rails 2.1 and higher, tell dirty module that we are changing the value
+        if (ActiveRecord::VERSION::MAJOR == 2 and ActiveRecord::VERSION::MINOR >= 1) or
+           (ActiveRecord::VERSION::MAJOR > 2)
+          dirty_code = "#{arg}_will_change!"
         end
-      end 
+
+        kode = %Q(
+          def #{arg}=(new_value)
+            #{dirty_code}
+            
+            if is_true?( new_value #{end_true_call})
+              self[:#{arg}] = #{set_true}
+            else
+              self[:#{arg}] = #{set_false}
+            end
+          end
+        )
+        class_eval kode
+      end
 
 
-      args.each do |arg| # Create getters
+      # Create getters
+      args.each do |arg|
         kode = %Q(
           def #{arg}?
             is_true?( #{arg}_before_type_cast #{end_true_call})
